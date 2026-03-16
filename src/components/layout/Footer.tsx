@@ -18,9 +18,9 @@ export const Footer = () => (
         </div>
       </div>
       <div>
-        <p className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">Demo Ready</p>
+        <p className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">Platform</p>
         <p className="mt-4 text-sm text-slate-600">
-          Built for CTSE assignment demos with responsive views, protected routes, and API-ready service layers.
+          Responsive layouts, protected routes, and API-ready service layers built for campus lost and found workflows.
         </p>
       </div>
     </div>

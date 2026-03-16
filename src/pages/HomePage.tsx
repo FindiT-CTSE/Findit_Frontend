@@ -37,7 +37,7 @@ export const HomePage = () => (
         <div className="relative">
           <div className="absolute -left-8 top-6 -z-10 h-36 w-36 rounded-full bg-coral/20 blur-3xl" />
           <p className="inline-flex rounded-full border border-brand-200 bg-white/80 px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-brand-700">
-            CTSE Assignment 1 Demo Frontend
+            Smart Campus Lost & Found
           </p>
           <h1 className="mt-6 max-w-3xl text-5xl font-extrabold leading-tight tracking-tight text-ink sm:text-6xl">
             Find lost campus items faster with a modern smart recovery hub.
@@ -114,8 +114,8 @@ export const HomePage = () => (
     <section className="container-shell py-16">
       <SectionHeading
         eyebrow="Feature Highlights"
-        title="Built for a proper smart campus product demo"
-        description="The frontend balances modern visuals with practical lost and found workflows so the app feels complete during demos."
+        title="Built for a polished smart campus experience"
+        description="The frontend balances modern visuals with practical lost and found workflows for students and staff."
       />
       <div className="mt-10 grid gap-6 lg:grid-cols-3">
         {features.map((feature) => (
@@ -137,7 +137,7 @@ export const HomePage = () => (
             Simple steps for students and staff
           </h2>
           <p className="mt-4 text-base text-white/70">
-            From the first report to a successful return, the flow stays clear and easy to demo.
+            From the first report to a successful return, the flow stays clear and easy to use.
           </p>
         </div>
         <div className="grid gap-4">
