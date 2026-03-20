@@ -8,7 +8,7 @@ import { EmptyState } from '../components/ui/EmptyState';
 import { Spinner } from '../components/ui/Spinner';
 import { postService } from '../services/postService';
 import { matchingService } from '../services/matchingService';
-import { MatchResponse, Post } from '../types';
+import { MatchItem, MatchResponse, Post } from '../types';
 
 export const MatchesPage = () => {
   const { id } = useParams();
@@ -34,13 +34,44 @@ export const MatchesPage = () => {
     }
   };
 
+  const enrichMatchesWithPostDetails = async (matches: MatchItem[]) => {
+    const enrichedMatches = await Promise.all(
+      matches.map(async (match) => {
+        try {
+          const matchedPost = await postService.getPostById(match.matchedPostId);
+
+          return {
+            ...match,
+            post: matchedPost,
+          };
+        } catch (err) {
+          console.error(`Failed to load matched post ${match.matchedPostId}`, err);
+
+          return {
+            ...match,
+            post: undefined,
+          };
+        }
+      })
+    );
+
+    return enrichedMatches;
+  };
+
   const loadMatches = async (selectedPost: Post) => {
     setLoadingMatches(true);
     setError('');
 
     try {
       const result = await matchingService.getMatchesForPost(selectedPost);
-      setMatchData(result);
+
+      const enrichedMatches = await enrichMatchesWithPostDetails(result.matches);
+
+      setMatchData({
+        ...result,
+        matches: enrichedMatches,
+        count: enrichedMatches.length,
+      });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unable to fetch matches.');
     } finally {
