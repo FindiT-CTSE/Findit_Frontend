@@ -9,7 +9,8 @@ interface MatchResultCardProps {
 }
 
 export const MatchResultCard = ({ match }: MatchResultCardProps) => {
-  const scorePercentage = `${Math.round(match.score * 100)}%`;
+  const normalizedScore = match.score <= 1 ? match.score * 100 : match.score;
+const scorePercentage = `${Math.round(normalizedScore)}%`;
 
   return (
     <Card className="p-5">

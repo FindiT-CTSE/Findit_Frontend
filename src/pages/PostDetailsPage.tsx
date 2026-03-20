@@ -146,25 +146,35 @@ export const PostDetailsPage = () => {
             <p className="mt-2 text-sm text-slate-600">
               Owners can close resolved reports or delete them if they were created by mistake.
             </p>
-            <div className="mt-5 flex flex-col gap-3">
-              {isAuthenticated && isOwner ? (
-                <>
-                  <Button onClick={handleClose} loading={submitting} disabled={post.status === 'CLOSED'}>
-                    {post.status === 'CLOSED' ? 'Already closed' : 'Close post'}
-                  </Button>
-                  <Button variant="danger" onClick={() => setConfirmOpen(true)}>
-                    Delete post
-                  </Button>
-                </>
-              ) : (
-                <p className="rounded-2xl bg-slate-50 px-4 py-3 text-sm text-slate-600">
-                  Sign in as the owner of this post to manage it.
-                </p>
-              )}
-              <Link to="/posts" className={buttonStyles({ variant: 'ghost', className: 'w-full' })}>
-                Back to browse
-              </Link>
-            </div>
+           <div className="mt-5 flex flex-col gap-3">
+  {isAuthenticated ? (
+    <Link
+      to={`/my-posts/${post.id}/matches`}
+      className={buttonStyles({ variant: 'secondary', className: 'w-full' })}
+    >
+      Check possible matches
+    </Link>
+  ) : null}
+
+  {isAuthenticated && isOwner ? (
+    <>
+      <Button onClick={handleClose} loading={submitting} disabled={post.status === 'CLOSED'}>
+        {post.status === 'CLOSED' ? 'Already closed' : 'Close post'}
+      </Button>
+      <Button variant="danger" onClick={() => setConfirmOpen(true)}>
+        Delete post
+      </Button>
+    </>
+  ) : (
+    <p className="rounded-2xl bg-slate-50 px-4 py-3 text-sm text-slate-600">
+      Sign in as the owner of this post to manage it.
+    </p>
+  )}
+
+  <Link to="/posts" className={buttonStyles({ variant: 'ghost', className: 'w-full' })}>
+    Back to browse
+  </Link>
+</div>
           </Card>
 
           <Card className="p-6">

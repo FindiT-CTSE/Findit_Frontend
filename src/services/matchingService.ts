@@ -3,6 +3,8 @@ import { MatchItem, MatchResponse, Post } from '../types';
 const MATCHING_API_BASE_URL =
   import.meta.env.VITE_MATCHING_API_BASE_URL || 'http://localhost:4002';
 
+  
+
 const getString = (value: unknown, fallback = '') =>
   typeof value === 'string' ? value : fallback;
 
@@ -53,12 +55,18 @@ const normalizeSingleMatch = (value: unknown): MatchItem | null => {
   const reasons =
     Array.isArray(item.reasons) ? item.reasons.map((reason) => String(reason)) : [];
 
-  return {
-    matchedPostId,
-    score: getNumber(item.score, 0),
-    reasons,
-    post: normalizePost(item.post ?? item.matchedPost),
-  };
+return {
+  matchedPostId,
+  score: getNumber(
+    item.score ??
+    item.matchScore ??
+    item.similarityScore ??
+    item.confidence,
+    0
+  ),
+  reasons,
+  post: normalizePost(item.post ?? item.matchedPost),
+};
 };
 
 const normalizeMatchResponse = (value: unknown): MatchResponse => {
