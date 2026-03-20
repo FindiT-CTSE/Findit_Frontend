@@ -20,6 +20,7 @@ export const MatchesPage = () => {
 
   const loadPost = async () => {
     if (!id) return;
+
     setLoadingPost(true);
     setError('');
 
@@ -57,6 +58,20 @@ export const MatchesPage = () => {
     }
   }, [post]);
 
+  const sortedMatches =
+    matchData?.matches
+      ?.slice()
+      .sort((a, b) => {
+        const scoreA = a.score <= 1 ? a.score * 100 : a.score;
+        const scoreB = b.score <= 1 ? b.score * 100 : b.score;
+        return scoreB - scoreA;
+      }) || [];
+
+  const topMatchScore =
+    sortedMatches.length > 0
+      ? Math.round(sortedMatches[0].score <= 1 ? sortedMatches[0].score * 100 : sortedMatches[0].score)
+      : 0;
+
   if (loadingPost) {
     return (
       <div className="flex min-h-[360px] items-center justify-center">
@@ -84,17 +99,18 @@ export const MatchesPage = () => {
       <Card className="p-6">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
-            <p className="text-sm uppercase tracking-[0.18em] text-brand-700">Matching workspace</p>
-            <h2 className="mt-2 text-3xl font-bold text-ink">Possible matches for your post</h2>
+            <p className="text-sm uppercase tracking-[0.18em] text-brand-700">
+              Matching workspace
+            </p>
+            <h2 className="mt-2 text-3xl font-bold text-ink">
+              Possible matches for your post
+            </h2>
             <p className="mt-2 text-sm text-slate-600">
               This page checks your selected lost or found report against the matching service.
             </p>
           </div>
 
-          <Button
-            onClick={() => post && void loadMatches(post)}
-            loading={loadingMatches}
-          >
+          <Button onClick={() => post && void loadMatches(post)} loading={loadingMatches}>
             Refresh matches
           </Button>
         </div>
@@ -102,21 +118,33 @@ export const MatchesPage = () => {
 
       <Card className="p-6">
         <h3 className="text-xl font-bold text-ink">Selected post</h3>
+
         <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           <div className="rounded-2xl bg-slate-50 p-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Type</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+              Type
+            </p>
             <p className="mt-2 font-semibold text-ink">{post.type}</p>
           </div>
+
           <div className="rounded-2xl bg-slate-50 p-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Category</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+              Category
+            </p>
             <p className="mt-2 font-semibold text-ink">{post.category}</p>
           </div>
+
           <div className="rounded-2xl bg-slate-50 p-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Location</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+              Location
+            </p>
             <p className="mt-2 font-semibold text-ink">{post.location}</p>
           </div>
+
           <div className="rounded-2xl bg-slate-50 p-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Status</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+              Status
+            </p>
             <p className="mt-2 font-semibold text-ink">{post.status}</p>
           </div>
         </div>
@@ -128,17 +156,35 @@ export const MatchesPage = () => {
         <div className="flex min-h-[220px] items-center justify-center">
           <Spinner size="lg" />
         </div>
-      ) : matchData && matchData.matches.length ? (
+      ) : matchData && sortedMatches.length ? (
         <div className="space-y-4">
           <Card className="p-5">
-            <h3 className="text-xl font-bold text-ink">Match results</h3>
-            <p className="mt-2 text-sm text-slate-600">
-              {matchData.count} possible match{matchData.count === 1 ? '' : 'es'} found for this post.
-            </p>
+            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+              <div>
+                <h3 className="text-xl font-bold text-ink">Match results</h3>
+                <p className="mt-2 text-sm text-slate-600">
+                  {sortedMatches.length} possible match{sortedMatches.length === 1 ? '' : 'es'} found for this post.
+                </p>
+              </div>
+
+              <div className="rounded-2xl bg-emerald-50 px-4 py-3">
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">
+                  Top match score
+                </p>
+                <p className="mt-1 text-2xl font-bold text-emerald-800">
+                  {topMatchScore}%
+                </p>
+              </div>
+            </div>
           </Card>
 
-          {matchData.matches.map((match) => (
-            <MatchResultCard key={match.matchedPostId} match={match} />
+          {sortedMatches.map((match, index) => (
+            <MatchResultCard
+              key={match.matchedPostId}
+              match={match}
+              rank={index + 1}
+              isTopMatch={index === 0}
+            />
           ))}
         </div>
       ) : (
