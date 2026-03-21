@@ -11,14 +11,14 @@ export const RegisterPage = () => {
   const navigate = useNavigate();
   const { register, isLoading } = useAuth();
   const { showToast } = useToast();
-  const [form, setForm] = useState({ name: '', email: '', password: '', confirmPassword: '' });
+  const [form, setForm] = useState({ fullName: '', email: '', password: '', confirmPassword: '' });
   const [error, setError] = useState('');
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
     setError('');
 
-    if (!form.name || !form.email || !form.password) {
+    if (!form.fullName || !form.email || !form.password) {
       setError('All fields are required.');
       return;
     }
@@ -34,7 +34,7 @@ export const RegisterPage = () => {
     }
 
     try {
-      await register({ name: form.name, email: form.email, password: form.password });
+      await register({ fullName: form.fullName, email: form.email, password: form.password });
       showToast({ title: 'Account created', message: 'Your account is ready to use.', variant: 'success' });
       navigate('/dashboard');
     } catch (submitError) {
@@ -50,8 +50,8 @@ export const RegisterPage = () => {
             <Input
               label="Full name"
               placeholder="Bhanuka Fernando"
-              value={form.name}
-              onChange={(event) => setForm((current) => ({ ...current, name: event.target.value }))}
+              value={form.fullName}
+              onChange={(event) => setForm((current) => ({ ...current, fullName: event.target.value }))}
             />
             <Input
               label="Email"
