@@ -12,6 +12,7 @@ const navLinks = [
 export const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const { isAuthenticated } = useAuth();
+  const visibleNavLinks = isAuthenticated ? navLinks : [];
 
   return (
     <header className="sticky top-0 z-40 border-b border-white/60 bg-slate-50/80 backdrop-blur-xl">
@@ -27,7 +28,7 @@ export const Navbar = () => {
         </Link>
 
         <nav className="hidden items-center gap-6 md:flex">
-          {navLinks.map((link) => (
+          {visibleNavLinks.map((link) => (
             <NavLink
               key={link.to}
               to={link.to}
@@ -75,7 +76,7 @@ export const Navbar = () => {
       {menuOpen ? (
         <div className="border-t border-slate-200 bg-white md:hidden">
           <div className="container-shell flex flex-col gap-4 py-5">
-            {navLinks.map((link) => (
+            {visibleNavLinks.map((link) => (
               <NavLink
                 key={link.to}
                 to={link.to}

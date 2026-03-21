@@ -147,7 +147,7 @@ export const PostDetailsPage = () => {
               Owners can close resolved reports or delete them if they were created by mistake.
             </p>
            <div className="mt-5 flex flex-col gap-3">
-  {isAuthenticated ? (
+  {isAuthenticated && isOwner ? (
     <Link
       to={`/my-posts/${post.id}/matches`}
       className={buttonStyles({ variant: 'secondary', className: 'w-full' })}
@@ -167,7 +167,7 @@ export const PostDetailsPage = () => {
     </>
   ) : (
     <p className="rounded-2xl bg-slate-50 px-4 py-3 text-sm text-slate-600">
-      Sign in as the owner of this post to manage it.
+      Only the user who created this post can manage, match-check, close, or delete it.
     </p>
   )}
 
