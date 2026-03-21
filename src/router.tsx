@@ -13,6 +13,7 @@ import { MyPostsPage } from './pages/MyPostsPage';
 import { NotificationsPage } from './pages/NotificationsPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { NotFoundPage } from './pages/NotFoundPage';
+import { MatchesPage } from './pages/MatchesPage';
 
 export const router = createBrowserRouter([
   {
@@ -35,6 +36,7 @@ export const router = createBrowserRouter([
           { path: 'dashboard', element: <DashboardPage /> },
           { path: 'posts/new', element: <CreatePostPage /> },
           { path: 'my-posts', element: <MyPostsPage /> },
+          { path: 'my-posts/:id/matches', element: <MatchesPage /> },
           { path: 'notifications', element: <NotificationsPage /> },
           { path: 'profile', element: <ProfilePage /> },
         ],

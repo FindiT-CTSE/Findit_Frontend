@@ -79,3 +79,15 @@ export interface DashboardStats {
   closedPosts: number;
   possibleMatches: number;
 }
+
+export interface MatchItem {
+  matchedPostId: string;
+  score: number;
+  reasons: string[];
+  post?: Post;
+}
+
+export interface MatchResponse {
+  count: number;
+  matches: MatchItem[];
+}
