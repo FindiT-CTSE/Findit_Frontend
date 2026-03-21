@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { PostCard } from '../components/posts/PostCard';
 import { Alert } from '../components/ui/Alert';
 import { buttonStyles } from '../components/ui/Button';
@@ -26,12 +26,13 @@ const matchesSearch = (post: Post, query: string) => {
 
 export const DashboardPage = () => {
   const { user } = useAuth();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [search, setSearch] = useState('');
   const [type, setType] = useState('');
   const [status, setStatus] = useState('');
+  const search = searchParams.get('q') || '';
 
   useEffect(() => {
     const load = async () => {
@@ -91,7 +92,53 @@ export const DashboardPage = () => {
     <div className="space-y-6">
       {error ? <Alert title="Dashboard data unavailable" message={error} variant="error" /> : null}
 
-      <Card className="p-6">
+      <Card className="border border-white/80 bg-white/95 p-5 shadow-card">
+        <div className="flex items-center gap-3">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-brand-400 to-ink text-sm font-bold text-white">
+            {(user?.name || user?.fullName || user?.email || 'U').slice(0, 1).toUpperCase()}
+          </div>
+          <div>
+            <p className="text-sm font-semibold text-ink">Campus Feed</p>
+            <p className="text-sm text-slate-500">What do you want to find or report today?</p>
+          </div>
+        </div>
+
+        <div className="mt-4 flex flex-col gap-3 sm:flex-row">
+          <Link to="/posts/new" className={buttonStyles({ className: 'w-full rounded-full sm:w-auto' })}>
+            Create new post
+          </Link>
+          <Link
+            to="/my-posts"
+            className={buttonStyles({
+              variant: 'ghost',
+              className: 'w-full rounded-full sm:w-auto',
+            })}
+          >
+            Manage my posts
+          </Link>
+        </div>
+      </Card>
+
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="rounded-[1.4rem] border border-white/80 bg-white/90 p-4 shadow-card">
+          <p className="text-2xl font-bold text-ink">{stats.totalPosts}</p>
+          <p className="mt-1 text-sm text-slate-500">Posts across campus</p>
+        </div>
+        <div className="rounded-[1.4rem] border border-white/80 bg-white/90 p-4 shadow-card">
+          <p className="text-2xl font-bold text-ink">{stats.openPosts}</p>
+          <p className="mt-1 text-sm text-slate-500">Open reports</p>
+        </div>
+        <div className="rounded-[1.4rem] border border-white/80 bg-white/90 p-4 shadow-card">
+          <p className="text-2xl font-bold text-ink">{stats.foundPosts}</p>
+          <p className="mt-1 text-sm text-slate-500">Found-item posts</p>
+        </div>
+        <div className="rounded-[1.4rem] border border-white/80 bg-white/90 p-4 shadow-card">
+          <p className="text-2xl font-bold text-ink">{stats.myPosts}</p>
+          <p className="mt-1 text-sm text-slate-500">Posts you created</p>
+        </div>
+      </div>
+
+      <Card className="border border-white/80 bg-white/95 p-5 shadow-card">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand-700">Campus feed</p>
@@ -100,33 +147,6 @@ export const DashboardPage = () => {
               Browse everything reported across campus. Only posts you created can be managed from your account.
             </p>
           </div>
-          <div className="flex flex-col gap-3 sm:flex-row">
-            <Link to="/posts/new" className={buttonStyles({ variant: 'secondary', className: 'w-full sm:w-auto' })}>
-              Report an item
-            </Link>
-            <Link to="/my-posts" className={buttonStyles({ variant: 'ghost', className: 'w-full sm:w-auto' })}>
-              My posts
-            </Link>
-          </div>
-        </div>
-
-        <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-          <div className="rounded-[1.4rem] bg-slate-50 p-4">
-            <p className="text-2xl font-bold text-ink">{stats.totalPosts}</p>
-            <p className="mt-1 text-sm text-slate-500">Posts across campus</p>
-          </div>
-          <div className="rounded-[1.4rem] bg-slate-50 p-4">
-            <p className="text-2xl font-bold text-ink">{stats.openPosts}</p>
-            <p className="mt-1 text-sm text-slate-500">Open reports</p>
-          </div>
-          <div className="rounded-[1.4rem] bg-slate-50 p-4">
-            <p className="text-2xl font-bold text-ink">{stats.foundPosts}</p>
-            <p className="mt-1 text-sm text-slate-500">Found-item posts</p>
-          </div>
-          <div className="rounded-[1.4rem] bg-slate-50 p-4">
-            <p className="text-2xl font-bold text-ink">{stats.myPosts}</p>
-            <p className="mt-1 text-sm text-slate-500">Posts you created</p>
-          </div>
         </div>
 
         <div className="mt-6 grid gap-4 md:grid-cols-3">
@@ -134,7 +154,19 @@ export const DashboardPage = () => {
             label="Search"
             placeholder="Category, location, owner"
             value={search}
-            onChange={(event) => setSearch(event.target.value)}
+            onChange={(event) => {
+              const nextParams = new URLSearchParams(searchParams);
+              const value = event.target.value;
+
+              if (value.trim()) {
+                nextParams.set('q', value);
+              } else {
+                nextParams.delete('q');
+              }
+
+              setSearchParams(nextParams, { replace: true });
+            }}
+            className=""
           />
           <Select label="Type" value={type} onChange={(event) => setType(event.target.value)}>
             <option value="">All types</option>
@@ -150,11 +182,11 @@ export const DashboardPage = () => {
       </Card>
 
       {myPosts.length ? (
-        <Card className="p-5">
+        <Card className="border border-white/80 bg-white/95 p-5 shadow-card">
           <div className="flex items-center justify-between gap-3">
             <div>
               <h3 className="text-lg font-bold text-ink">Your recent posts</h3>
-              <p className="mt-1 text-sm text-slate-600">Quick access to the items you can manage.</p>
+              <p className="mt-1 text-sm text-slate-500">Quick access to the items you can manage.</p>
             </div>
             <Link to="/my-posts" className="text-sm font-semibold text-brand-700">
               View all
@@ -185,7 +217,7 @@ export const DashboardPage = () => {
       ) : null}
 
       {visiblePosts.length ? (
-        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+        <div className="space-y-5">
           {visiblePosts.map((post) => (
             <PostCard key={post.id} post={post} compact />
           ))}
@@ -199,9 +231,9 @@ export const DashboardPage = () => {
               type="button"
               className={buttonStyles({ variant: 'ghost' })}
               onClick={() => {
-                setSearch('');
                 setType('');
                 setStatus('');
+                setSearchParams({}, { replace: true });
               }}
             >
               Reset filters

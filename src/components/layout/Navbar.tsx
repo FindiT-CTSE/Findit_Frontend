@@ -6,7 +6,7 @@ import { useAuth } from '../../hooks/useAuth';
 
 const navLinks = [
   { to: '/', label: 'Home' },
-  { to: '/posts', label: 'Browse' },
+  { to: '/dashboard', label: 'Feed' },
 ];
 
 export const Navbar = () => {

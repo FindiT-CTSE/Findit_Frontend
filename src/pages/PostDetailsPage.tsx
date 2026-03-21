@@ -171,8 +171,8 @@ export const PostDetailsPage = () => {
     </p>
   )}
 
-  <Link to="/posts" className={buttonStyles({ variant: 'ghost', className: 'w-full' })}>
-    Back to browse
+  <Link to="/dashboard" className={buttonStyles({ variant: 'ghost', className: 'w-full' })}>
+    Back to feed
   </Link>
 </div>
           </Card>

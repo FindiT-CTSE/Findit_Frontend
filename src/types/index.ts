@@ -64,13 +64,27 @@ export interface PostFilters {
   search?: string;
 }
 
+export interface NotificationMeta {
+  postId?: string;
+  claimId?: string;
+  matchScore?: number;
+  [key: string]: unknown;
+}
+
 export interface NotificationItem {
   id: string;
+  userId?: string;
   title: string;
   message: string;
-  type: 'MATCH' | 'SYSTEM' | 'REMINDER';
+  type: 'MATCH_FOUND' | 'SYSTEM' | 'REMINDER' | 'MATCH' | string;
+  meta?: NotificationMeta;
+  read: boolean;
   createdAt: string;
-  read?: boolean;
+}
+
+export interface NotificationsResponse {
+  count: number;
+  items: NotificationItem[];
 }
 
 export interface DashboardStats {

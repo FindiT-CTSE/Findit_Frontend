@@ -8,6 +8,7 @@ import {
 } from 'react';
 import { AuthResponse, LoginPayload, RegisterPayload, User } from '../types';
 import { authService } from '../services/authService';
+import { setNotificationsAuthToken } from '../services/notificationsApi';
 import { storage } from '../utils/storage';
 
 interface AuthContextValue {
@@ -27,6 +28,7 @@ export const AuthContext = createContext<AuthContextValue | null>(null);
 const normalizeAuth = (response: AuthResponse) => {
   storage.setToken(response.token);
   storage.setUser(response.user);
+  setNotificationsAuthToken(response.token);
   return response;
 };
 
@@ -68,6 +70,7 @@ const AuthState = ({ children }: { children: ReactNode }) => {
   }, [applyAuth]);
 
   const logout = useCallback(() => {
+    setNotificationsAuthToken(null);
     storage.clearAuth();
     setUser(null);
     setToken(null);
@@ -95,7 +98,12 @@ const AuthState = ({ children }: { children: ReactNode }) => {
   }, []);
 
   useEffect(() => {
+    setNotificationsAuthToken(token);
+  }, [token]);
+
+  useEffect(() => {
     const handleUnauthorized = () => {
+      setNotificationsAuthToken(null);
       storage.clearAuth();
       setUser(null);
       setToken(null);

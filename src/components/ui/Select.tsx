@@ -4,11 +4,12 @@ import { cn } from '../../utils/cn';
 interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
   label: string;
   error?: string;
+  labelClassName?: string;
 }
 
-export const Select = ({ label, error, className, children, ...props }: SelectProps) => (
+export const Select = ({ label, error, className, labelClassName, children, ...props }: SelectProps) => (
   <label className="block space-y-2">
-    <span className="text-sm font-semibold text-slate-700">{label}</span>
+    <span className={cn('text-sm font-semibold text-slate-700', labelClassName)}>{label}</span>
     <select
       className={cn(
         'w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-brand-400 focus:ring-4 focus:ring-brand-100',
