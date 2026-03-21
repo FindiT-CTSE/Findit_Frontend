@@ -2,7 +2,7 @@ import { NavLink } from 'react-router-dom';
 import { cn } from '../../utils/cn';
 
 const links = [
-  { to: '/dashboard', label: 'Overview' },
+  { to: '/dashboard', label: 'Feed' },
   { to: '/posts/new', label: 'Create Post' },
   { to: '/my-posts', label: 'My Posts' },
   { to: '/notifications', label: 'Notifications' },

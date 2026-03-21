@@ -80,6 +80,13 @@ export interface DashboardStats {
   possibleMatches: number;
 }
 
+export interface ProfileSettings {
+  receiveMatchAlerts: boolean;
+  receiveSystemNotifications: boolean;
+  receiveEmailUpdates: boolean;
+  showOnlyOpenPostsByDefault: boolean;
+}
+
 export interface MatchItem {
   matchedPostId: string;
   score: number;
