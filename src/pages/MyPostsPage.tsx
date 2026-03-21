@@ -134,24 +134,33 @@ export const MyPostsPage = () => {
                     <td className="px-4 py-4 text-slate-600">{formatDate(post.date)}</td>
                     <td className="px-4 py-4 text-slate-600">{post.location}</td>
                     <td className="px-4 py-4">
-                      <div className="flex flex-wrap gap-2">
-                        <Link
-                          to={`/posts/${post.id}`}
-                          className={buttonStyles({ size: 'sm', variant: 'ghost' })}
-                        >
-                          View
-                        </Link>
-                        <Button
-                          size="sm"
-                          onClick={() => void handleClose(post)}
-                          disabled={post.status === 'CLOSED' || submitting}
-                        >
-                          Close
-                        </Button>
-                        <Button size="sm" variant="danger" onClick={() => setSelectedPost(post)}>
-                          Delete
-                        </Button>
-                      </div>
+                     <div className="flex flex-wrap gap-2">
+  <Link
+    to={`/posts/${post.id}`}
+    className={buttonStyles({ size: 'sm', variant: 'ghost' })}
+  >
+    View
+  </Link>
+
+  <Link
+    to={`/my-posts/${post.id}/matches`}
+    className={buttonStyles({ size: 'sm', variant: 'secondary' })}
+  >
+    Matches
+  </Link>
+
+  <Button
+    size="sm"
+    onClick={() => void handleClose(post)}
+    disabled={post.status === 'CLOSED' || submitting}
+  >
+    Close
+  </Button>
+
+  <Button size="sm" variant="danger" onClick={() => setSelectedPost(post)}>
+    Delete
+  </Button>
+</div>
                     </td>
                   </tr>
                 ))}

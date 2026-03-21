@@ -16,7 +16,7 @@ export interface AuthResponse {
 }
 
 export interface RegisterPayload {
-  name: string;
+  fullName: string;
   email: string;
   password: string;
 }
@@ -78,4 +78,16 @@ export interface DashboardStats {
   openPosts: number;
   closedPosts: number;
   possibleMatches: number;
+}
+
+export interface MatchItem {
+  matchedPostId: string;
+  score: number;
+  reasons: string[];
+  post?: Post;
+}
+
+export interface MatchResponse {
+  count: number;
+  matches: MatchItem[];
 }
