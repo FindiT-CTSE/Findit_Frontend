@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { PostCard } from '../components/posts/PostCard';
 import { Alert } from '../components/ui/Alert';
@@ -29,6 +29,7 @@ export const DashboardPage = () => {
   const { user } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
   const savedSettings = storage.getProfileSettings<ProfileSettings>();
+  const initialLoadStarted = useRef(false);
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -39,6 +40,9 @@ export const DashboardPage = () => {
   const search = searchParams.get('q') || '';
 
   useEffect(() => {
+    if (initialLoadStarted.current) return;
+    initialLoadStarted.current = true;
+
     const load = async () => {
       setLoading(true);
       setError('');
@@ -83,14 +87,6 @@ export const DashboardPage = () => {
       myPosts: myPosts.length,
     };
   }, [myPosts.length, posts]);
-
-  if (loading) {
-    return (
-      <div className="flex min-h-[360px] items-center justify-center">
-        <Spinner size="lg" />
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-6">
@@ -185,7 +181,13 @@ export const DashboardPage = () => {
         </div>
       </Card>
 
-      {myPosts.length ? (
+      {loading ? (
+        <Card className="border border-white/80 bg-white/95 p-8 shadow-card">
+          <div className="flex min-h-[180px] items-center justify-center">
+            <Spinner size="lg" />
+          </div>
+        </Card>
+      ) : myPosts.length ? (
         <Card className="border border-white/80 bg-white/95 p-5 shadow-card">
           <div className="flex items-center justify-between gap-3">
             <div>
@@ -220,7 +222,13 @@ export const DashboardPage = () => {
         </Card>
       ) : null}
 
-      {visiblePosts.length ? (
+      {loading ? (
+        <Card className="border border-white/80 bg-white/95 p-8 shadow-card">
+          <div className="flex min-h-[260px] items-center justify-center">
+            <Spinner size="lg" />
+          </div>
+        </Card>
+      ) : visiblePosts.length ? (
         <div className="space-y-5">
           {visiblePosts.map((post) => (
             <PostCard key={post.id} post={post} compact />

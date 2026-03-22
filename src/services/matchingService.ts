@@ -1,9 +1,5 @@
 import { MatchItem, MatchResponse, Post } from '../types';
-
-const MATCHING_API_BASE_URL =
-  import.meta.env.VITE_MATCHING_API_BASE_URL || 'http://localhost:4002';
-
-  
+import { MATCHING_API_BASE_URL } from './gateway';
 
 const getString = (value: unknown, fallback = '') =>
   typeof value === 'string' ? value : fallback;

@@ -29,6 +29,8 @@ export const DashboardLayout = () => {
   const [unreadCount, setUnreadCount] = useState(0);
   const previousUnreadCount = useRef(0);
   const seenNotificationIds = useRef<Set<string>>(new Set());
+  const initialUnreadLoadStarted = useRef(false);
+  const hasHandledLocationChange = useRef(false);
 
   const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
     const nextParams = new URLSearchParams(searchParams);
@@ -87,6 +89,16 @@ export const DashboardLayout = () => {
   }, [showToast, token]);
 
   useEffect(() => {
+    if (initialUnreadLoadStarted.current) return;
+    initialUnreadLoadStarted.current = true;
+    void loadUnreadCount();
+  }, [loadUnreadCount]);
+
+  useEffect(() => {
+    if (!hasHandledLocationChange.current) {
+      hasHandledLocationChange.current = true;
+      return;
+    }
     void loadUnreadCount();
   }, [loadUnreadCount, location.pathname]);
 

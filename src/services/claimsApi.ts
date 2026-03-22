@@ -1,7 +1,5 @@
 import { ClaimListResponse, ClaimResponse, SubmitClaimPayload } from '../types';
-
-const CLAIMS_API_BASE_URL =
-  import.meta.env.VITE_CLAIMS_API || 'http://localhost:4003';
+import { CLAIMS_API_BASE_URL } from './gateway';
 
 let claimsAuthToken: string | null = null;
 

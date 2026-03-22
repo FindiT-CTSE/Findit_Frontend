@@ -1,7 +1,5 @@
 import { NotificationsResponse } from '../types';
-
-const NOTIFICATIONS_API_BASE_URL =
-  import.meta.env.VITE_NOTIFICATIONS_API || 'http://localhost:4004';
+import { NOTIFICATIONS_API_BASE_URL } from './gateway';
 
 let notificationsAuthToken: string | null = null;
 
