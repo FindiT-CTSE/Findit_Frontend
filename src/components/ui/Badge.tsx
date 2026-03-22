@@ -6,7 +6,16 @@ export const Badge = ({
   variant = 'neutral',
 }: {
   children: ReactNode;
-  variant?: 'neutral' | 'lost' | 'found' | 'open' | 'closed';
+  variant?:
+    | 'neutral'
+    | 'lost'
+    | 'found'
+    | 'open'
+    | 'closed'
+    | 'pending'
+    | 'approved'
+    | 'rejected'
+    | 'cancelled';
 }) => (
   <span
     className={cn(
@@ -16,6 +25,10 @@ export const Badge = ({
       variant === 'found' && 'bg-emerald-100 text-emerald-700',
       variant === 'open' && 'bg-sky-100 text-sky-700',
       variant === 'closed' && 'bg-slate-200 text-slate-700',
+      variant === 'pending' && 'bg-amber-100 text-amber-700',
+      variant === 'approved' && 'bg-emerald-100 text-emerald-700',
+      variant === 'rejected' && 'bg-rose-100 text-rose-700',
+      variant === 'cancelled' && 'bg-slate-200 text-slate-700',
     )}
   >
     {children}

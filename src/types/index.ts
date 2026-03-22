@@ -64,6 +64,37 @@ export interface PostFilters {
   search?: string;
 }
 
+export type ClaimStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'CANCELLED';
+
+export interface Claim {
+  id: string;
+  postId: string;
+  claimantUserId: string;
+  ownerUserId: string;
+  message: string;
+  proof: string;
+  status: ClaimStatus;
+  reviewedAt?: string | null;
+  reviewedByUserId?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface SubmitClaimPayload {
+  postId: string;
+  message: string;
+  proof: string;
+}
+
+export interface ClaimResponse {
+  claim: Claim;
+}
+
+export interface ClaimListResponse {
+  count: number;
+  claims: Claim[];
+}
+
 export interface NotificationMeta {
   postId?: string;
   claimId?: string;

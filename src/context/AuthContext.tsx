@@ -8,6 +8,7 @@ import {
 } from 'react';
 import { AuthResponse, LoginPayload, RegisterPayload, User } from '../types';
 import { authService } from '../services/authService';
+import { setClaimsAuthToken } from '../services/claimsApi';
 import { setNotificationsAuthToken } from '../services/notificationsApi';
 import { storage } from '../utils/storage';
 
@@ -28,6 +29,7 @@ export const AuthContext = createContext<AuthContextValue | null>(null);
 const normalizeAuth = (response: AuthResponse) => {
   storage.setToken(response.token);
   storage.setUser(response.user);
+  setClaimsAuthToken(response.token);
   setNotificationsAuthToken(response.token);
   return response;
 };
@@ -70,6 +72,7 @@ const AuthState = ({ children }: { children: ReactNode }) => {
   }, [applyAuth]);
 
   const logout = useCallback(() => {
+    setClaimsAuthToken(null);
     setNotificationsAuthToken(null);
     storage.clearAuth();
     setUser(null);
@@ -98,11 +101,13 @@ const AuthState = ({ children }: { children: ReactNode }) => {
   }, []);
 
   useEffect(() => {
+    setClaimsAuthToken(token);
     setNotificationsAuthToken(token);
   }, [token]);
 
   useEffect(() => {
     const handleUnauthorized = () => {
+      setClaimsAuthToken(null);
       setNotificationsAuthToken(null);
       storage.clearAuth();
       setUser(null);
