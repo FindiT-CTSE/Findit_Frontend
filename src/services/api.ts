@@ -1,6 +1,7 @@
 import { storage } from '../utils/storage';
+import { CORE_API_BASE_URL } from './gateway';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4001';
+const API_TIMEOUT_MS = Number(import.meta.env.VITE_API_TIMEOUT_MS || 10000);
 
 type RequestOptions = RequestInit & {
   auth?: boolean;
@@ -29,17 +30,29 @@ const buildHeaders = (headers?: HeadersInit, auth?: boolean) => {
 
 export const apiRequest = async <T>(path: string, options: RequestOptions = {}): Promise<T> => {
   let response: Response;
+  const controller = new AbortController();
+  const timeoutId = window.setTimeout(() => controller.abort(), API_TIMEOUT_MS);
 
   try {
-    response = await fetch(`${API_BASE_URL}${path}`, {
+    response = await fetch(`${CORE_API_BASE_URL}${path}`, {
       ...options,
+      signal: controller.signal,
       headers: buildHeaders(options.headers, options.auth),
     });
   } catch (error) {
+    if (error instanceof DOMException && error.name === 'AbortError') {
+      throw new ApiError(
+        `The request to ${CORE_API_BASE_URL}${path} took too long. Check whether the API Gateway is running and responding.`,
+        408,
+      );
+    }
+
     throw new ApiError(
-      `Unable to connect to the server at ${API_BASE_URL}. Make sure the backend is running and reachable.`,
+      `Unable to connect to the server at ${CORE_API_BASE_URL}. Make sure the API Gateway is running and reachable.`,
       0,
     );
+  } finally {
+    window.clearTimeout(timeoutId);
   }
 
   if (response.status === 401) {
