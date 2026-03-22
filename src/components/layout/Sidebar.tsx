@@ -6,6 +6,8 @@ const links = [
   { to: '/dashboard', label: 'Feed', hint: 'Campus activity' },
   { to: '/posts/new', label: 'Create Post', hint: 'Report an item' },
   { to: '/my-posts', label: 'My Posts', hint: 'Manage yours' },
+  { to: '/my-claims', label: 'My Claims', hint: 'Track requests' },
+  { to: '/received-claims', label: 'Received Claims', hint: 'Review ownership' },
   { to: '/notifications', label: 'Notifications', hint: 'Match alerts' },
   { to: '/profile', label: 'Profile', hint: 'Settings' },
 ];

@@ -13,6 +13,8 @@ import { NotificationsPage } from './pages/NotificationsPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { NotFoundPage } from './pages/NotFoundPage';
 import { MatchesPage } from './pages/MatchesPage';
+import { MyClaimsPage } from './pages/MyClaimsPage';
+import { ReceivedClaimsPage } from './pages/ReceivedClaimsPage';
 
 export const router = createBrowserRouter([
   {
@@ -42,6 +44,8 @@ export const router = createBrowserRouter([
           { path: 'posts/new', element: <CreatePostPage /> },
           { path: 'my-posts', element: <MyPostsPage /> },
           { path: 'my-posts/:id/matches', element: <MatchesPage /> },
+          { path: 'my-claims', element: <MyClaimsPage /> },
+          { path: 'received-claims', element: <ReceivedClaimsPage /> },
           { path: 'notifications', element: <NotificationsPage /> },
           { path: 'profile', element: <ProfilePage /> },
         ],

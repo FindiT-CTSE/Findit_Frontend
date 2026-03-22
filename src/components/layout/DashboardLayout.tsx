@@ -13,6 +13,7 @@ const topLinks = [
   { to: '/dashboard', label: 'Feed' },
   { to: '/posts/new', label: 'Create' },
   { to: '/my-posts', label: 'My Posts' },
+  { to: '/my-claims', label: 'My Claims' },
   { to: '/notifications', label: 'Notifications' },
   { to: '/profile', label: 'Profile' },
 ];
@@ -194,6 +195,12 @@ export const DashboardLayout = () => {
               </Link>
               <Link to="/my-posts" className="block rounded-[1.1rem] bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-brand-50 hover:text-brand-700">
                 Open my posts
+              </Link>
+              <Link to="/my-claims" className="block rounded-[1.1rem] bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-brand-50 hover:text-brand-700">
+                Open my claims
+              </Link>
+              <Link to="/received-claims" className="block rounded-[1.1rem] bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-brand-50 hover:text-brand-700">
+                Review received claims
               </Link>
               <Link to="/notifications" className="flex items-center justify-between rounded-[1.1rem] bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-brand-50 hover:text-brand-700">
                 <span>View alerts</span>
