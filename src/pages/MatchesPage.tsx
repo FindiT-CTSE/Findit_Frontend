@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { MatchResultCard } from '../components/posts/MatchResultCard';
 import { Alert } from '../components/ui/Alert';
@@ -6,12 +6,19 @@ import { Button, buttonStyles } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { EmptyState } from '../components/ui/EmptyState';
 import { Spinner } from '../components/ui/Spinner';
+import { useAuth } from '../hooks/useAuth';
 import { postService } from '../services/postService';
 import { matchingService } from '../services/matchingService';
 import { MatchItem, MatchResponse, Post } from '../types';
 
+const isOwnedByUser = (post: Post, email?: string, id?: string) => {
+  const owner = post.owner || post.user;
+  return Boolean((id && owner?.id === id) || (email && owner?.email === email));
+};
+
 export const MatchesPage = () => {
   const { id } = useParams();
+  const { user } = useAuth();
   const [post, setPost] = useState<Post | null>(null);
   const [matchData, setMatchData] = useState<MatchResponse | null>(null);
   const [loadingPost, setLoadingPost] = useState(true);
@@ -89,6 +96,11 @@ export const MatchesPage = () => {
     }
   }, [post]);
 
+  const isOwner = useMemo(
+    () => (post ? isOwnedByUser(post, user?.email, user?.id) : false),
+    [post, user?.email, user?.id],
+  );
+
   const sortedMatches =
     matchData?.matches
       ?.slice()
@@ -119,6 +131,20 @@ export const MatchesPage = () => {
         action={
           <Link to="/my-posts" className={buttonStyles({})}>
             Back to my posts
+          </Link>
+        }
+      />
+    );
+  }
+
+  if (!isOwner) {
+    return (
+      <EmptyState
+        title="Owner access only"
+        description="You can view all campus posts, but only the user who created this post can open its matching workspace."
+        action={
+          <Link to={`/posts/${post.id}`} className={buttonStyles({})}>
+            Back to post
           </Link>
         }
       />

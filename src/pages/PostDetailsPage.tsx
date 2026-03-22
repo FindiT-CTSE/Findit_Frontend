@@ -1,12 +1,15 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Alert } from '../components/ui/Alert';
 import { Badge } from '../components/ui/Badge';
 import { Button, buttonStyles } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { ConfirmDialog } from '../components/ui/ConfirmDialog';
 import { Spinner } from '../components/ui/Spinner';
+import { Textarea } from '../components/ui/Textarea';
 import { useAuth } from '../hooks/useAuth';
 import { useToast } from '../hooks/useToast';
+import { submitClaim } from '../services/claimsApi';
 import { Post } from '../types';
 import { formatDate, formatDateTime } from '../utils/format';
 import { postService } from '../services/postService';
@@ -24,7 +27,12 @@ export const PostDetailsPage = () => {
   const [post, setPost] = useState<Post | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [claimSubmitting, setClaimSubmitting] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [claimMessage, setClaimMessage] = useState('');
+  const [claimProof, setClaimProof] = useState('');
+  const [claimError, setClaimError] = useState('');
+  const [claimSuccess, setClaimSuccess] = useState('');
 
   useEffect(() => {
     const load = async () => {
@@ -68,6 +76,47 @@ export const PostDetailsPage = () => {
     } finally {
       setSubmitting(false);
       setConfirmOpen(false);
+    }
+  };
+
+  const handleSubmitClaim = async () => {
+    if (!post) return;
+
+    const trimmedMessage = claimMessage.trim();
+    const trimmedProof = claimProof.trim();
+
+    if (!trimmedMessage || !trimmedProof) {
+      setClaimError('Please provide both a claim message and proof details.');
+      setClaimSuccess('');
+      return;
+    }
+
+    setClaimSubmitting(true);
+    setClaimError('');
+    setClaimSuccess('');
+
+    try {
+      await submitClaim({
+        postId: post.id,
+        message: trimmedMessage,
+        proof: trimmedProof,
+      });
+
+      setClaimMessage('');
+      setClaimProof('');
+      setClaimSuccess('Your claim has been submitted and is waiting for review.');
+      showToast({
+        title: 'Claim submitted',
+        message: 'The post owner can now review your ownership claim.',
+        variant: 'success',
+      });
+    } catch (claimSubmitError) {
+      const message =
+        claimSubmitError instanceof Error ? claimSubmitError.message : 'Unable to submit this claim.';
+      setClaimError(message);
+      setClaimSuccess('');
+    } finally {
+      setClaimSubmitting(false);
     }
   };
 
@@ -146,35 +195,85 @@ export const PostDetailsPage = () => {
             <p className="mt-2 text-sm text-slate-600">
               Owners can close resolved reports or delete them if they were created by mistake.
             </p>
-           <div className="mt-5 flex flex-col gap-3">
-  {isAuthenticated ? (
-    <Link
-      to={`/my-posts/${post.id}/matches`}
-      className={buttonStyles({ variant: 'secondary', className: 'w-full' })}
-    >
-      Check possible matches
-    </Link>
-  ) : null}
+            <div className="mt-5 flex flex-col gap-3">
+              {isAuthenticated && isOwner ? (
+                <Link
+                  to={`/my-posts/${post.id}/matches`}
+                  className={buttonStyles({ variant: 'secondary', className: 'w-full' })}
+                >
+                  Check possible matches
+                </Link>
+              ) : null}
 
-  {isAuthenticated && isOwner ? (
-    <>
-      <Button onClick={handleClose} loading={submitting} disabled={post.status === 'CLOSED'}>
-        {post.status === 'CLOSED' ? 'Already closed' : 'Close post'}
-      </Button>
-      <Button variant="danger" onClick={() => setConfirmOpen(true)}>
-        Delete post
-      </Button>
-    </>
-  ) : (
-    <p className="rounded-2xl bg-slate-50 px-4 py-3 text-sm text-slate-600">
-      Sign in as the owner of this post to manage it.
-    </p>
-  )}
+              {isAuthenticated && isOwner ? (
+                <>
+                  <Button onClick={handleClose} loading={submitting} disabled={post.status === 'CLOSED'}>
+                    {post.status === 'CLOSED' ? 'Already closed' : 'Close post'}
+                  </Button>
+                  <Button variant="danger" onClick={() => setConfirmOpen(true)}>
+                    Delete post
+                  </Button>
+                </>
+              ) : (
+                <p className="rounded-2xl bg-slate-50 px-4 py-3 text-sm text-slate-600">
+                  Only the user who created this post can manage, match-check, close, or delete it.
+                </p>
+              )}
 
-  <Link to="/posts" className={buttonStyles({ variant: 'ghost', className: 'w-full' })}>
-    Back to browse
-  </Link>
-</div>
+              <Link to="/dashboard" className={buttonStyles({ variant: 'ghost', className: 'w-full' })}>
+                Back to feed
+              </Link>
+            </div>
+          </Card>
+
+          <Card className="p-6">
+            <h2 className="text-xl font-bold text-ink">Submit Claim</h2>
+            <p className="mt-2 text-sm text-slate-600">
+              If this item belongs to you, explain why and include proof the owner can verify.
+            </p>
+
+            {!isAuthenticated ? (
+              <Alert
+                title="Login required"
+                message="Sign in to submit a claim for this post."
+                variant="info"
+              />
+            ) : post.status === 'CLOSED' ? (
+              <Alert
+                title="Post closed"
+                message="Claims are no longer accepted for resolved posts."
+                variant="info"
+              />
+            ) : isOwner ? (
+              <Alert
+                title="Owner actions only"
+                message="You cannot submit a claim on your own post."
+                variant="info"
+              />
+            ) : (
+              <div className="mt-5 space-y-4">
+                {claimError ? <Alert title="Claim submission failed" message={claimError} variant="error" /> : null}
+                {claimSuccess ? <Alert title="Claim submitted" message={claimSuccess} variant="success" /> : null}
+
+                <Textarea
+                  label="Message"
+                  placeholder="Explain why you believe this item is yours."
+                  value={claimMessage}
+                  onChange={(event) => setClaimMessage(event.target.value)}
+                />
+                <Textarea
+                  label="Proof"
+                  placeholder="Add specific proof, such as a sticker, serial number, or unique mark."
+                  value={claimProof}
+                  onChange={(event) => setClaimProof(event.target.value)}
+                  className="min-h-28"
+                />
+
+                <Button onClick={() => void handleSubmitClaim()} loading={claimSubmitting}>
+                  Submit claim
+                </Button>
+              </div>
+            )}
           </Card>
 
           <Card className="p-6">

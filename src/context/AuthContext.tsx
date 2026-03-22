@@ -8,6 +8,8 @@ import {
 } from 'react';
 import { AuthResponse, LoginPayload, RegisterPayload, User } from '../types';
 import { authService } from '../services/authService';
+import { setClaimsAuthToken } from '../services/claimsApi';
+import { setNotificationsAuthToken } from '../services/notificationsApi';
 import { storage } from '../utils/storage';
 
 interface AuthContextValue {
@@ -19,6 +21,7 @@ interface AuthContextValue {
   register: (payload: RegisterPayload) => Promise<void>;
   logout: () => void;
   refreshProfile: () => Promise<void>;
+  updateUser: (updates: Partial<User>) => void;
 }
 
 export const AuthContext = createContext<AuthContextValue | null>(null);
@@ -26,6 +29,8 @@ export const AuthContext = createContext<AuthContextValue | null>(null);
 const normalizeAuth = (response: AuthResponse) => {
   storage.setToken(response.token);
   storage.setUser(response.user);
+  setClaimsAuthToken(response.token);
+  setNotificationsAuthToken(response.token);
   return response;
 };
 
@@ -67,6 +72,8 @@ const AuthState = ({ children }: { children: ReactNode }) => {
   }, [applyAuth]);
 
   const logout = useCallback(() => {
+    setClaimsAuthToken(null);
+    setNotificationsAuthToken(null);
     storage.clearAuth();
     setUser(null);
     setToken(null);
@@ -84,8 +91,24 @@ const AuthState = ({ children }: { children: ReactNode }) => {
     }
   }, []);
 
+  const updateUser = useCallback((updates: Partial<User>) => {
+    setUser((current) => {
+      if (!current) return current;
+      const nextUser = { ...current, ...updates };
+      storage.setUser(nextUser);
+      return nextUser;
+    });
+  }, []);
+
+  useEffect(() => {
+    setClaimsAuthToken(token);
+    setNotificationsAuthToken(token);
+  }, [token]);
+
   useEffect(() => {
     const handleUnauthorized = () => {
+      setClaimsAuthToken(null);
+      setNotificationsAuthToken(null);
       storage.clearAuth();
       setUser(null);
       setToken(null);
@@ -106,8 +129,9 @@ const AuthState = ({ children }: { children: ReactNode }) => {
       register,
       logout,
       refreshProfile,
+      updateUser,
     }),
-    [user, token, isLoading, login, register, logout, refreshProfile],
+    [user, token, isLoading, login, register, logout, refreshProfile, updateUser],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
