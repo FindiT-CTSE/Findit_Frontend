@@ -56,6 +56,7 @@ export const fetchMyNotifications = async (unreadOnly?: boolean, limit?: number)
   const suffix = query.toString() ? `?${query.toString()}` : '';
   return request<NotificationsResponse>(`/notifications/me${suffix}`, {
     method: 'GET',
+    cache: 'no-store',
   });
 };
 

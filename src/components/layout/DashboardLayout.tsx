@@ -1,9 +1,13 @@
-import { ChangeEvent, useCallback, useEffect, useState } from 'react';
+import { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
 import { useAuth } from '../../hooks/useAuth';
 import { Button } from '../ui/Button';
 import { fetchMyNotifications } from '../../services/notificationsApi';
+import { useToast } from '../../hooks/useToast';
+import { storage } from '../../utils/storage';
+import { ProfileSettings } from '../../types';
+import { shouldToastNotification } from '../../utils/notifications';
 
 const topLinks = [
   { to: '/dashboard', label: 'Feed' },
@@ -15,12 +19,15 @@ const topLinks = [
 
 export const DashboardLayout = () => {
   const { user, logout, token } = useAuth();
+  const { showToast } = useToast();
   const location = useLocation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const searchValue = searchParams.get('q') || '';
   const searchEnabled = location.pathname === '/dashboard';
   const [unreadCount, setUnreadCount] = useState(0);
+  const previousUnreadCount = useRef(0);
+  const seenNotificationIds = useRef<Set<string>>(new Set());
 
   const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
     const nextParams = new URLSearchParams(searchParams);
@@ -48,16 +55,49 @@ export const DashboardLayout = () => {
     }
 
     try {
-      const response = await fetchMyNotifications(true);
+      const response = await fetchMyNotifications(true, 10);
       setUnreadCount(response.count);
+
+      const settings = storage.getProfileSettings<ProfileSettings>();
+
+      if (!seenNotificationIds.current.size) {
+        response.items.forEach((item) => seenNotificationIds.current.add(item.id));
+      } else {
+        response.items.forEach((item) => {
+          if (!seenNotificationIds.current.has(item.id)) {
+            seenNotificationIds.current.add(item.id);
+
+            if (shouldToastNotification(item, settings)) {
+              showToast({
+                title: item.title,
+                message: item.message,
+                variant: 'info',
+              });
+            }
+          }
+        });
+      }
+
+      previousUnreadCount.current = response.count;
     } catch {
       setUnreadCount(0);
+      previousUnreadCount.current = 0;
     }
-  }, [token]);
+  }, [showToast, token]);
 
   useEffect(() => {
     void loadUnreadCount();
   }, [loadUnreadCount, location.pathname]);
+
+  useEffect(() => {
+    if (!token) return;
+
+    const intervalId = window.setInterval(() => {
+      void loadUnreadCount();
+    }, 10000);
+
+    return () => window.clearInterval(intervalId);
+  }, [loadUnreadCount, token]);
 
   useEffect(() => {
     const handleNotificationsUpdated = () => {

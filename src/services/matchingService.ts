@@ -71,16 +71,17 @@ return {
 
 const normalizeMatchResponse = (value: unknown): MatchResponse => {
   const obj = asObject(value);
+  const nestedData = asObject(obj?.data);
 
-  const rawMatches =
-    (Array.isArray(obj?.matches) && obj?.matches) ||
-    (Array.isArray(obj?.data) && obj?.data) ||
-    (Array.isArray(asObject(obj?.data)?.matches) && asObject(obj?.data)?.matches) ||
+  const rawMatches: unknown[] =
+    Array.isArray(obj?.matches) ? obj.matches :
+    Array.isArray(obj?.data) ? obj.data :
+    Array.isArray(nestedData?.matches) ? nestedData.matches :
     [];
 
   const matches = rawMatches
     .map(normalizeSingleMatch)
-    .filter((match): match is MatchItem => Boolean(match));
+    .filter((match: MatchItem | null): match is MatchItem => Boolean(match));
 
   const count =
     typeof obj?.count === 'number'

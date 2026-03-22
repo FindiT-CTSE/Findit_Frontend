@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { Alert } from '../components/ui/Alert';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
@@ -11,21 +12,39 @@ import {
   markAllNotificationsRead,
   markNotificationRead,
 } from '../services/notificationsApi';
+import {
+  getNotificationBucket,
+  getNotificationTargetPath,
+  getNotificationTypeLabel,
+  NotificationBucket,
+} from '../utils/notifications';
 
 const emitNotificationsUpdated = () => {
   window.dispatchEvent(new CustomEvent('notifications:updated'));
 };
 
 export const NotificationsPage = () => {
+  const navigate = useNavigate();
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [submittingId, setSubmittingId] = useState<string | null>(null);
   const [markingAll, setMarkingAll] = useState(false);
+  const [activeTab, setActiveTab] = useState<NotificationBucket>('all');
 
   const unreadCount = useMemo(
     () => notifications.filter((notification) => !notification.read).length,
     [notifications],
+  );
+
+  const visibleNotifications = useMemo(
+    () =>
+      notifications.filter((notification) => {
+        if (activeTab === 'all') return true;
+        if (activeTab === 'unread') return !notification.read;
+        return getNotificationBucket(notification.type) === activeTab;
+      }),
+    [activeTab, notifications],
   );
 
   const loadNotifications = useCallback(async () => {
@@ -49,20 +68,34 @@ export const NotificationsPage = () => {
     void loadNotifications();
   }, [loadNotifications]);
 
-  const handleNotificationClick = async (notification: NotificationItem) => {
-    if (notification.read) return;
+  useEffect(() => {
+    const intervalId = window.setInterval(() => {
+      void loadNotifications();
+    }, 10000);
 
-    setSubmittingId(notification.id);
-    try {
-      await markNotificationRead(notification.id);
-      setNotifications((current) =>
-        current.map((item) => (item.id === notification.id ? { ...item, read: true } : item)),
-      );
-      emitNotificationsUpdated();
-    } catch (submitError) {
-      setError(submitError instanceof Error ? submitError.message : 'Unable to update notification.');
-    } finally {
-      setSubmittingId(null);
+    return () => window.clearInterval(intervalId);
+  }, [loadNotifications]);
+
+  const handleNotificationClick = async (notification: NotificationItem) => {
+    const targetPath = getNotificationTargetPath(notification);
+
+    if (!notification.read) {
+      setSubmittingId(notification.id);
+      try {
+        await markNotificationRead(notification.id);
+        setNotifications((current) =>
+          current.map((item) => (item.id === notification.id ? { ...item, read: true } : item)),
+        );
+        emitNotificationsUpdated();
+      } catch (submitError) {
+        setError(submitError instanceof Error ? submitError.message : 'Unable to update notification.');
+      } finally {
+        setSubmittingId(null);
+      }
+    }
+
+    if (targetPath) {
+      navigate(targetPath);
     }
   };
 
@@ -110,13 +143,35 @@ export const NotificationsPage = () => {
             </Button>
           </div>
         </div>
+        <div className="mt-5 flex flex-wrap gap-2">
+          {([
+            ['all', 'All'],
+            ['unread', 'Unread'],
+            ['matches', 'Matches'],
+            ['claims', 'Claims'],
+            ['system', 'System'],
+          ] as Array<[NotificationBucket, string]>).map(([value, label]) => (
+            <button
+              key={value}
+              type="button"
+              onClick={() => setActiveTab(value)}
+              className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
+                activeTab === value
+                  ? 'bg-ink text-white'
+                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
       </Card>
 
       {error ? <Alert title="Notifications error" message={error} variant="error" /> : null}
 
-      {notifications.length ? (
+      {visibleNotifications.length ? (
         <div className="grid gap-4">
-          {notifications.map((notification) => (
+          {visibleNotifications.map((notification) => (
             <button
               key={notification.id}
               type="button"
@@ -129,7 +184,7 @@ export const NotificationsPage = () => {
               <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-700">
-                    {notification.type}
+                    {getNotificationTypeLabel(notification.type)}
                   </p>
                   <h3 className="mt-2 text-xl font-bold text-ink">{notification.title}</h3>
                   <p className="mt-2 text-sm leading-7 text-slate-600">{notification.message}</p>
@@ -162,7 +217,16 @@ export const NotificationsPage = () => {
       ) : (
         <EmptyState
           title="No notifications yet"
-          description="You do not have any notifications right now."
+          description={
+            activeTab === 'all'
+              ? 'You do not have any notifications right now.'
+              : 'No notifications match the selected category right now.'
+          }
+          action={
+            <Link to="/profile" className="text-sm font-semibold text-brand-700">
+              Review notification settings
+            </Link>
+          }
         />
       )}
     </div>

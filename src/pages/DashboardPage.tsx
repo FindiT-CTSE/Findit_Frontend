@@ -10,7 +10,8 @@ import { Select } from '../components/ui/Select';
 import { Spinner } from '../components/ui/Spinner';
 import { useAuth } from '../hooks/useAuth';
 import { postService } from '../services/postService';
-import { Post } from '../types';
+import { Post, ProfileSettings } from '../types';
+import { storage } from '../utils/storage';
 
 const isOwnedByUser = (post: Post, email?: string, id?: string) => {
   const owner = post.owner || post.user;
@@ -27,11 +28,14 @@ const matchesSearch = (post: Post, query: string) => {
 export const DashboardPage = () => {
   const { user } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
+  const savedSettings = storage.getProfileSettings<ProfileSettings>();
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [type, setType] = useState('');
-  const [status, setStatus] = useState('');
+  const [status, setStatus] = useState(
+    savedSettings?.showOnlyOpenPostsByDefault ? 'OPEN' : '',
+  );
   const search = searchParams.get('q') || '';
 
   useEffect(() => {

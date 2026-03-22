@@ -68,15 +68,36 @@ export interface NotificationMeta {
   postId?: string;
   claimId?: string;
   matchScore?: number;
+  deepLink?: string;
+  status?: string;
   [key: string]: unknown;
 }
+
+export type NotificationType =
+  | 'MATCH_FOUND'
+  | 'MATCH_SCORE_UPDATED'
+  | 'NEW_COMMENT_ON_POST'
+  | 'POST_STATUS_CHANGED'
+  | 'ITEM_CLAIMED'
+  | 'CLAIM_APPROVED'
+  | 'CLAIM_REJECTED'
+  | 'POST_EXPIRED'
+  | 'POST_REMINDER'
+  | 'NEW_POST_NEARBY'
+  | 'ADMIN_MESSAGE'
+  | 'ACCOUNT_SECURITY'
+  | 'PROFILE_UPDATED'
+  | 'SYSTEM'
+  | 'REMINDER'
+  | 'MATCH'
+  | string;
 
 export interface NotificationItem {
   id: string;
   userId?: string;
   title: string;
   message: string;
-  type: 'MATCH_FOUND' | 'SYSTEM' | 'REMINDER' | 'MATCH' | string;
+  type: NotificationType;
   meta?: NotificationMeta;
   read: boolean;
   createdAt: string;
