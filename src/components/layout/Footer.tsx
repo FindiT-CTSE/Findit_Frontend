@@ -12,7 +12,7 @@ export const Footer = () => (
       <div>
         <p className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">Explore</p>
         <div className="mt-4 flex flex-col gap-3 text-sm text-slate-600">
-          <Link to="/posts">Browse Items</Link>
+          <Link to="/dashboard">Campus Feed</Link>
           <Link to="/register">Create Account</Link>
           <Link to="/login">Login</Link>
         </div>

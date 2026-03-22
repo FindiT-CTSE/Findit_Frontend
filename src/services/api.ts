@@ -28,10 +28,19 @@ const buildHeaders = (headers?: HeadersInit, auth?: boolean) => {
 };
 
 export const apiRequest = async <T>(path: string, options: RequestOptions = {}): Promise<T> => {
-  const response = await fetch(`${API_BASE_URL}${path}`, {
-    ...options,
-    headers: buildHeaders(options.headers, options.auth),
-  });
+  let response: Response;
+
+  try {
+    response = await fetch(`${API_BASE_URL}${path}`, {
+      ...options,
+      headers: buildHeaders(options.headers, options.auth),
+    });
+  } catch (error) {
+    throw new ApiError(
+      `Unable to connect to the server at ${API_BASE_URL}. Make sure the backend is running and reachable.`,
+      0,
+    );
+  }
 
   if (response.status === 401) {
     window.dispatchEvent(new CustomEvent('auth:unauthorized'));

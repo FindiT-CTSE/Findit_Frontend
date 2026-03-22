@@ -162,7 +162,7 @@ export const HomePage = () => {
                 Report Found Item
               </Link>
               <Link
-                to="/posts"
+                to="/dashboard"
                 className={buttonStyles({ size: 'lg', variant: 'ghost', className: 'w-full sm:w-auto' })}
               >
                 Browse Items
@@ -239,7 +239,7 @@ export const HomePage = () => {
                     className="w-full bg-transparent text-sm text-ink outline-none placeholder:text-slate-400"
                   />
                 </label>
-                <Link to="/posts" className={buttonStyles({ variant: 'ghost', size: 'sm' })}>
+                <Link to="/dashboard" className={buttonStyles({ variant: 'ghost', size: 'sm' })}>
                   Full feed
                 </Link>
               </div>
